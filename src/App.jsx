@@ -1,9 +1,8 @@
 import { } from 'react'
+import TicTacToePlus from "./components/TicTacToePlus";
 
 function App() {
-  return (
-    <div>Hello World</div>
-  )
+  return (<TicTacToePlus />)
 }
 
 export default App
