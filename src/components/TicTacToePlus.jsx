@@ -65,10 +65,10 @@ function TicTacToePlus() {
 
   const handleReset = () => {
     setGameState(gameStateMeaning.inProgress);
-    setTiles(Array(9).fill(null))
-    setPlayerTurm(PLAYER_X)
-    setStrikeClass(null)
-  }
+    setTiles(Array(9).fill(null));
+    setPlayerTurm(PLAYER_X);
+    setStrikeClass(null);
+  };
 
   useEffect(() => {
     checkWinner(tiles, setStrikeClass, setGameState);
@@ -79,7 +79,7 @@ function TicTacToePlus() {
       <h1>Tic Tac Toe</h1>
       <Board playerTurn={playerTurn} tiles={tiles} onTileClick={handleTileClick} strikeClass={strikeClass} />
       <GameOver gameState={gameState} />
-      <Reset  gameState={gameState} onReset={handleReset} />
+      <Reset gameState={gameState} onReset={handleReset} />
     </div>
   );
 }
