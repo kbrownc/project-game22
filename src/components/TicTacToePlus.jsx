@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import Board from './Board';
 import GameOver from './GameOver';
 import { gameStateMeaning } from '../utils';
+//import { getRandomNumber } from '../utils';
 import Reset from './Reset';
 
 const PLAYER_X = 'X';
 const PLAYER_O = 'O';
+const PLAYER_Blocked = 'Blocked';
 
 const winningCombinations = [
   { combo: [0, 1, 2], strikeClass: 'strike-row-1' },
@@ -34,27 +36,61 @@ function checkWinner(tiles, setStrikeClass, setGameState) {
       return;
     }
   }
-  const areAllTilesFilledIn = tiles.every(tile => tile !== null);
+  // Is this coded xorrectly using occurance 0 ????????????????????????????????????????
+  const areAllTilesFilledIn = tiles[0].every(tile => tile !== null);
   if (areAllTilesFilledIn) {
     setGameState(gameStateMeaning.draw);
   }
 }
 
 function TicTacToePlus() {
-  const [tiles, setTiles] = useState(Array(9).fill(null));
+  const initialTiles = [[null,"Play","Skip","Switch","Blocked"],
+                        [null,"Skip","Switch","Blocked"],
+                        [null,"Switch","Blocked"],
+                        [null,"Blocked"],
+                        [null],
+                        [null],
+                        [null],
+                        [null],
+                        [null]]
+  //const [tiles, setTiles] = useState(Array(9).fill(null));
+  //let randomNum = getRandomNumber(1, 99);
+  const [tiles, setTiles] = useState(initialTiles);
   const [playerTurn, setPlayerTurm] = useState(PLAYER_X);
   const [strikeClass, setStrikeClass] = useState();
   const [gameState, setGameState] = useState(gameStateMeaning.inProgress);
 
   const handleTileClick = index => {
+    console.log(index, tiles)
     if (gameState !== gameStateMeaning.inProgress) {
       return;
     }
-    if (tiles[index] !== null) {
+    if (tiles[index][0] === PLAYER_X || tiles[index][0] === PLAYER_O) {
       return;
     }
     const newTiles = [...tiles];
-    newTiles[index] = playerTurn;
+
+    if (tiles[index][1] === 'Skip') {
+      console.log(tiles[index])
+      newTiles[index].splice(1, 1);
+    } else if (tiles[index][1] === 'Switch') {
+      console.log(tiles[index][0]);
+      if (playerTurn === PLAYER_X) {
+        newTiles[index][0] = PLAYER_O
+      } else {
+        newTiles[index][0] = PLAYER_X
+      }
+      newTiles[index].splice(1, 1);
+    } else if (tiles[index][1] === 'Blocked') {
+      console.log(tiles[index][0]);
+      newTiles[index][0] = PLAYER_Blocked;
+      newTiles[index].splice(1, 1);
+    } else if (tiles[index][1] === 'Play') {
+      console.log(newTiles[index])
+      newTiles[index][0] = playerTurn;
+      newTiles[index].splice(1, 1);
+    }
+
     setTiles(newTiles);
     if (playerTurn === 'X') {
       setPlayerTurm(PLAYER_O);
@@ -65,7 +101,7 @@ function TicTacToePlus() {
 
   const handleReset = () => {
     setGameState(gameStateMeaning.inProgress);
-    setTiles(Array(9).fill(null));
+    setTiles(initialTiles);
     setPlayerTurm(PLAYER_X);
     setStrikeClass(null);
   };
@@ -76,7 +112,7 @@ function TicTacToePlus() {
 
   return (
     <div>
-      <h1>Tic Tac Toe</h1>
+      <h1>Tic Tac Toe Plus</h1>
       <Board playerTurn={playerTurn} tiles={tiles} onTileClick={handleTileClick} strikeClass={strikeClass} />
       <GameOver gameState={gameState} />
       <Reset gameState={gameState} onReset={handleReset} />
