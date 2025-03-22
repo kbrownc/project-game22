@@ -9,6 +9,9 @@ const PLAYER_X = 'X';
 const PLAYER_O = 'O';
 const PLAYER_Blocked = 'Blocked';
 const PLAYER_Wild = 'Wild';
+const PLAYER_Remove = 'Remove';
+const PLAYER_Switch = 'Switch';
+//debugger; // eslint-disable-line
 
 const winningCombinations = [
   { combo: [0, 1, 2], strikeClass: 'strike-row-1' },
@@ -61,86 +64,99 @@ function checkWinner(tiles, setStrikeClass, setGameState) {
 }
 
 function TicTacToePlus() {
-  const initialTiles = [[null,"Play"],
+  const initialTiles = [[null,"Play","Play"],
                         [null,"Skip","Blocked"],
                         [null,"Switch","Play"],
                         [null,"Blocked"],
-                        [null,"Play"],
+                        [null,"Remove","Play"],
                         [null,"Wild"],
-                        [null,"Play"],
-                        [null,"Play"],
-                        [null,"Play"]];
+                        [null,"Play","Play"],
+                        [null,"Play","Play"],
+                        [null,"Play","Play"]];
   //const [tiles, setTiles] = useState(Array(9).fill(null));
   //let randomNum = getRandomNumber(1, 99);
   const [tiles, setTiles] = useState(initialTiles);
   const [message, setMessage] = useState('');
   const [switchXO, setSwitchXO] = useState(false);
-  const [playerTurn, setPlayerTurm] = useState(PLAYER_X);
+  const [removeXO, setRemoveXO] = useState(false);
+  const [playerTurn, setPlayerTurn] = useState(PLAYER_X);
   const [strikeClass, setStrikeClass] = useState();
   const [gameState, setGameState] = useState(gameStateMeaning.inProgress);
 
   const handleTileClick = index => {
-    if (gameState !== gameStateMeaning.inProgress) {
-      return;
-    }
-    //debugger; // eslint-disable-line
-
-    if (!switchXO) {
-      if (tiles[index][0] === PLAYER_X || tiles[index][0] === PLAYER_O) {
-        return;
-      }
-    } else {
-      if (tiles[index][0] !== PLAYER_X && tiles[index][0] !== PLAYER_O) {
-        return;
-      }
-    }
-
+    if (gameState !== gameStateMeaning.inProgress) return;
     const newTiles = [...tiles];
-    let workSwitchXO = switchXO;
-    setMessage('');
 
-    if (tiles[index][1] === 'Skip') {
-      console.log('skip',tiles[index])
+    if (tiles[index][1] === PLAYER_Remove || tiles[index][1] === PLAYER_Switch) {
+      let notCurrrentPlayer = '';
+      playerTurn === PLAYER_X ? notCurrrentPlayer = PLAYER_O : notCurrrentPlayer = PLAYER_X;
+      const areAnyTilesNotCurrentPlayer = tiles.every(tile => tile[0] !== notCurrrentPlayer);
+      if (areAnyTilesNotCurrentPlayer) {
+        newTiles[index].splice(1, 1);
+        setTiles(newTiles);
+        return;
+      }
+    }
+
+    if (!switchXO && !removeXO) {
+      if (tiles[index][0] !== null) {return};
+    } else {
+      if (tiles[index][0] !== PLAYER_X && tiles[index][0] !== PLAYER_O) {return};
+    }
+
+    
+    let workSwitchXO = switchXO;
+    let workRemoveXO = removeXO;
+    let workPlayerTurn = playerTurn;
+    playerTurn === 'X' ? workPlayerTurn = PLAYER_O : workPlayerTurn =  PLAYER_X;
+    let workMessage = workPlayerTurn + ', your turn to play'
+
+    if (workSwitchXO) {
+      workSwitchXO = false
+      newTiles[index][0] = playerTurn;
       newTiles[index].splice(1, 1);
-    } else if (tiles[index][1] === 'Switch') {
-      console.log('switch',tiles[index]);
+    } else if (workRemoveXO) {
+      workRemoveXO = false
+      newTiles[index][0] = null;
+      newTiles[index].splice(1, 1);
+    } else if (tiles[index][1] === 'Skip') {
+      newTiles[index].splice(1, 1);
+    } else if (tiles[index][1] === PLAYER_Switch) {
       workSwitchXO = true
-      setMessage('Pick a square and switch the choice');
-      playerTurn === PLAYER_X ? newTiles[index][0] = PLAYER_O : newTiles[index][0] = PLAYER_X
+      workMessage = playerTurn + ', Pick a square and switch the choice';
+      newTiles[index].splice(1, 1);
+    } else if (tiles[index][1] === PLAYER_Remove) {
+      workRemoveXO = true
+      workMessage = playerTurn + ', Pick a square and remove the contents';
       newTiles[index].splice(1, 1);
     } else if (tiles[index][1] === 'Blocked') {
-      console.log('blocked',tiles[index]);
       newTiles[index][0] = PLAYER_Blocked;
       newTiles[index].splice(1, 1);
     } else if (tiles[index][1] === 'Wild') {
-      console.log('wild',tiles[index]);
       newTiles[index][0] = PLAYER_Wild;
       newTiles[index].splice(1, 1);
     } else if (tiles[index][1] === 'Play') {
-      console.log('play',tiles[index])
-      newTiles[index][0] = playerTurn;
-      newTiles[index].splice(1, 1);
-    } else if (workSwitchXO) {
-      console.log('switchXO',newTiles[index],switchXO)
-      workSwitchXO = false
       newTiles[index][0] = playerTurn;
       newTiles[index].splice(1, 1);
     }
 
     setTiles(newTiles);
-    if (!workSwitchXO) {
-        playerTurn === 'X' ? setPlayerTurm(PLAYER_O) : setPlayerTurm(PLAYER_X)
+    if (!workSwitchXO && !workRemoveXO) {
+        setPlayerTurn(workPlayerTurn);
      }
      setSwitchXO(workSwitchXO) 
+     setRemoveXO(workRemoveXO) 
+     setMessage(workMessage)
   };
 
   const handleReset = () => {
     setGameState(gameStateMeaning.inProgress);
     setTiles(initialTiles);
-    setPlayerTurm(PLAYER_X);
+    setPlayerTurn(PLAYER_X);
     setStrikeClass();
     setMessage('');
     setSwitchXO(false);
+    setRemoveXO(false);
   };
 
   useEffect(() => {
