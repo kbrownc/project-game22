@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Board from './Board';
 import GameOver from './GameOver';
 import { gameStateMeaning } from '../utils';
-//import { getRandomNumber } from '../utils';
+import { getRandomNumber } from '../utils';
 import Reset from './Reset';
 
 const PLAYER_X = 'X';
@@ -11,6 +11,8 @@ const PLAYER_Blocked = 'Blocked';
 const PLAYER_Wild = 'Wild';
 const PLAYER_Remove = 'Remove';
 const PLAYER_Switch = 'Switch';
+const PLAYER_Play = 'Play';
+const PLAYER_Skip = 'Skip';
 //debugger; // eslint-disable-line
 
 const winningCombinations = [
@@ -23,6 +25,25 @@ const winningCombinations = [
   { combo: [0, 4, 8], strikeClass: 'strike-diagonal-1' },
   { combo: [2, 4, 6], strikeClass: 'strike-diagonal-2' },
 ];
+
+const getPlayerMove = () => {
+    let playerMove = '';
+    let randomNum = getRandomNumber(1, 15);
+    if (randomNum < 10) {
+      playerMove = PLAYER_Play
+    } else if (randomNum === 10) {
+      playerMove = PLAYER_Wild
+    } else if (randomNum === 11) {
+      playerMove = PLAYER_Blocked
+    } else if (randomNum === 12) {
+      playerMove = PLAYER_Switch
+    } else if (randomNum === 13) {
+      playerMove = PLAYER_Skip
+    } else if (randomNum > 13) {
+      playerMove = PLAYER_Remove
+    }
+    return playerMove;
+  };
 
 function checkWinner(tiles, setStrikeClass, setGameState) {
   for (const { combo, strikeClass } of winningCombinations) {
@@ -64,17 +85,22 @@ function checkWinner(tiles, setStrikeClass, setGameState) {
 }
 
 function TicTacToePlus() {
-  const initialTiles = [[null,"Play","Play"],
-                        [null,"Skip","Blocked"],
-                        [null,"Switch","Play"],
-                        [null,"Blocked"],
-                        [null,"Remove","Play"],
-                        [null,"Wild"],
-                        [null,"Play","Play"],
-                        [null,"Play","Play"],
-                        [null,"Play","Play"]];
+  let initialTiles = [[null],[null],[null],[null],[null],[null],[null],[null],[null]]
+  for (let i = 0; i < 9; i++) {
+    initialTiles[i][1] = getPlayerMove()
+  }
+  //console.log(initialTiles)
+  // const initialTiles = [[null,"Play","Play","Play"],
+  //                       [null,"Skip","Blocked"],
+  //                       [null,"Switch","Play","Play"],
+  //                       [null,"Blocked"],
+  //                       [null,"Remove","Play","Play"],
+  //                       [null,"Wild"],
+  //                       [null,"Play","Play","Play"],
+  //                       [null,"Play","Play","Play"],
+  //                       [null,"Play","Play","Play"]];
   //const [tiles, setTiles] = useState(Array(9).fill(null));
-  //let randomNum = getRandomNumber(1, 99);
+  //let randomNum = getRandomNumber(1, 15);
   const [tiles, setTiles] = useState(initialTiles);
   const [message, setMessage] = useState('');
   const [switchXO, setSwitchXO] = useState(false);
@@ -87,7 +113,13 @@ function TicTacToePlus() {
     if (gameState !== gameStateMeaning.inProgress) return;
     const newTiles = [...tiles];
 
-    if (tiles[index][1] === PLAYER_Remove || tiles[index][1] === PLAYER_Switch) {
+    console.log(newTiles[index][1])
+    if (newTiles[index][1] === null || newTiles[index][1] === undefined) {
+      newTiles[index][1] = getPlayerMove()
+      console.log('obtain another player move',newTiles[index][1])
+    }
+
+    if (newTiles[index][1] === PLAYER_Remove || tiles[index][1] === PLAYER_Switch) {
       let notCurrrentPlayer = '';
       playerTurn === PLAYER_X ? notCurrrentPlayer = PLAYER_O : notCurrrentPlayer = PLAYER_X;
       const areAnyTilesNotCurrentPlayer = tiles.every(tile => tile[0] !== notCurrrentPlayer);
@@ -99,9 +131,9 @@ function TicTacToePlus() {
     }
 
     if (!switchXO && !removeXO) {
-      if (tiles[index][0] !== null) {return};
+      if (newTiles[index][0] !== null) {return};
     } else {
-      if (tiles[index][0] !== PLAYER_X && tiles[index][0] !== PLAYER_O) {return};
+      if (newTiles[index][0] !== PLAYER_X && newTiles[index][0] !== PLAYER_O) {return};
     }
 
     
@@ -147,6 +179,7 @@ function TicTacToePlus() {
      setSwitchXO(workSwitchXO) 
      setRemoveXO(workRemoveXO) 
      setMessage(workMessage)
+     console.log(newTiles)
   };
 
   const handleReset = () => {
