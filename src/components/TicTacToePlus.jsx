@@ -89,18 +89,6 @@ function TicTacToePlus() {
   for (let i = 0; i < 9; i++) {
     initialTiles[i][1] = getPlayerMove()
   }
-  //console.log(initialTiles)
-  // const initialTiles = [[null,"Play","Play","Play"],
-  //                       [null,"Skip","Blocked"],
-  //                       [null,"Switch","Play","Play"],
-  //                       [null,"Blocked"],
-  //                       [null,"Remove","Play","Play"],
-  //                       [null,"Wild"],
-  //                       [null,"Play","Play","Play"],
-  //                       [null,"Play","Play","Play"],
-  //                       [null,"Play","Play","Play"]];
-  //const [tiles, setTiles] = useState(Array(9).fill(null));
-  //let randomNum = getRandomNumber(1, 15);
   const [tiles, setTiles] = useState(initialTiles);
   const [message, setMessage] = useState('');
   const [switchXO, setSwitchXO] = useState(false);
@@ -110,13 +98,14 @@ function TicTacToePlus() {
   const [gameState, setGameState] = useState(gameStateMeaning.inProgress);
 
   const handleTileClick = index => {
+    console.log('Initial Tiles',tiles)
     if (gameState !== gameStateMeaning.inProgress) return;
     const newTiles = [...tiles];
+    let workMessage = ''
 
-    console.log(newTiles[index][1])
     if (newTiles[index][1] === null || newTiles[index][1] === undefined) {
       newTiles[index][1] = getPlayerMove()
-      console.log('obtain another player move',newTiles[index][1])
+      workMessage = 'obtain another move: ' + newTiles[index][1]
     }
 
     if (newTiles[index][1] === PLAYER_Remove || tiles[index][1] === PLAYER_Switch) {
@@ -126,14 +115,24 @@ function TicTacToePlus() {
       if (areAnyTilesNotCurrentPlayer) {
         newTiles[index].splice(1, 1);
         setTiles(newTiles);
+        workMessage = 'areAnyTilesNotCurrentPlayer'
+        setMessage(workMessage)
         return;
       }
     }
 
     if (!switchXO && !removeXO) {
-      if (newTiles[index][0] !== null) {return};
+      if (newTiles[index][0] !== null) {
+        workMessage = 'Cannot play if a value alreay exists in square'
+        setMessage(workMessage)
+        return
+      };
     } else {
-      if (newTiles[index][0] !== PLAYER_X && newTiles[index][0] !== PLAYER_O) {return};
+      if (newTiles[index][0] !== PLAYER_X && newTiles[index][0] !== PLAYER_O) {
+        workMessage = 'Can only remove an X or O'
+        setMessage(workMessage)
+        return
+      };
     }
 
     
@@ -141,7 +140,7 @@ function TicTacToePlus() {
     let workRemoveXO = removeXO;
     let workPlayerTurn = playerTurn;
     playerTurn === 'X' ? workPlayerTurn = PLAYER_O : workPlayerTurn =  PLAYER_X;
-    let workMessage = workPlayerTurn + ', your turn to play'
+    workMessage = workPlayerTurn + ', your turn to play'
 
     if (workSwitchXO) {
       workSwitchXO = false
@@ -179,7 +178,6 @@ function TicTacToePlus() {
      setSwitchXO(workSwitchXO) 
      setRemoveXO(workRemoveXO) 
      setMessage(workMessage)
-     console.log(newTiles)
   };
 
   const handleReset = () => {
