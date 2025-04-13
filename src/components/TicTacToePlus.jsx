@@ -98,35 +98,40 @@ function TicTacToePlus() {
   const [gameState, setGameState] = useState(gameStateMeaning.inProgress);
 
   const handleTileClick = index => {
-    console.log('Initial Tiles',tiles)
-    if (gameState !== gameStateMeaning.inProgress) return;
     const newTiles = [...tiles];
     let workMessage = ''
+    console.log('Initial Tiles',tiles)
 
+    // If game is not in progress, exit
+    if (gameState !== gameStateMeaning.inProgress) return;
+
+    // If spot clicked on doesnt have ac action move, get one
     if (newTiles[index][1] === null || newTiles[index][1] === undefined) {
       newTiles[index][1] = getPlayerMove()
       workMessage = 'obtain another move: ' + newTiles[index][1]
     }
 
+    // If player move is 'remove' or 'switch', ensure there is a valid move...
+    //  if not assure PLAY is current move
     if (newTiles[index][1] === PLAYER_Remove || tiles[index][1] === PLAYER_Switch) {
       let notCurrrentPlayer = '';
       playerTurn === PLAYER_X ? notCurrrentPlayer = PLAYER_O : notCurrrentPlayer = PLAYER_X;
-      const areAnyTilesNotCurrentPlayer = tiles.every(tile => tile[0] !== notCurrrentPlayer);
-      if (areAnyTilesNotCurrentPlayer) {
+      //const areAnyTilesNotCurrentPlayer = tiles.every(tile => tile[0] !== notCurrrentPlayer);
+      if (tiles.every(tile => tile[0] !== notCurrrentPlayer)) {
         newTiles[index].splice(1, 1);
-        setTiles(newTiles);
-        workMessage = 'areAnyTilesNotCurrentPlayer'
-        setMessage(workMessage)
-        return;
+        newTiles[index][1] = PLAYER_Play;
+        //setTiles(newTiles);   ?????????
       }
     }
 
+    // If player move is not switch/remove, exit if square already has been played in
     if (!switchXO && !removeXO) {
       if (newTiles[index][0] !== null) {
         workMessage = 'Cannot play if a value alreay exists in square'
         setMessage(workMessage)
         return
       };
+    // If player move is switch/remove, exit if what already exists in square is not an X or O
     } else {
       if (newTiles[index][0] !== PLAYER_X && newTiles[index][0] !== PLAYER_O) {
         workMessage = 'Can only remove an X or O'
