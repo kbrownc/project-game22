@@ -98,91 +98,80 @@ function TicTacToePlus() {
   const [gameState, setGameState] = useState(gameStateMeaning.inProgress);
 
   const handleTileClick = index => {
-    const newTiles = [...tiles];
-    let workMessage = ''
-    console.log('Initial Tiles',tiles)
-
     // If game is not in progress, exit
     if (gameState !== gameStateMeaning.inProgress) return;
-
-    // If spot clicked on doesnt have ac action move, get one
-    if (newTiles[index][1] === null || newTiles[index][1] === undefined) {
-      newTiles[index][1] = getPlayerMove()
-      workMessage = 'obtain another move: ' + newTiles[index][1]
-    }
-
-    // If player move is 'remove' or 'switch', ensure there is a valid move...
-    //  if not assure PLAY is current move
-    if (newTiles[index][1] === PLAYER_Remove || tiles[index][1] === PLAYER_Switch) {
-      let notCurrrentPlayer = '';
-      playerTurn === PLAYER_X ? notCurrrentPlayer = PLAYER_O : notCurrrentPlayer = PLAYER_X;
-      //const areAnyTilesNotCurrentPlayer = tiles.every(tile => tile[0] !== notCurrrentPlayer);
-      if (tiles.every(tile => tile[0] !== notCurrrentPlayer)) {
-        newTiles[index].splice(1, 1);
-        newTiles[index][1] = PLAYER_Play;
-        //setTiles(newTiles);   ?????????
-      }
-    }
-
-    // If player move is not switch/remove, exit if square already has been played in
-    if (!switchXO && !removeXO) {
-      if (newTiles[index][0] !== null) {
-        workMessage = 'Cannot play if a value alreay exists in square'
-        setMessage(workMessage)
-        return
-      };
-    // If player move is switch/remove, exit if what already exists in square is not an X or O
-    } else {
-      if (newTiles[index][0] !== PLAYER_X && newTiles[index][0] !== PLAYER_O) {
-        workMessage = 'Can only remove an X or O'
-        setMessage(workMessage)
-        return
-      };
-    }
-
-    
-    let workSwitchXO = switchXO;
-    let workRemoveXO = removeXO;
+    const newTiles = [...tiles];
+    let workMessage = ''
     let workPlayerTurn = playerTurn;
     playerTurn === 'X' ? workPlayerTurn = PLAYER_O : workPlayerTurn =  PLAYER_X;
     workMessage = workPlayerTurn + ', your turn to play'
 
-    if (workSwitchXO) {
-      workSwitchXO = false
-      newTiles[index][0] = playerTurn;
-      newTiles[index].splice(1, 1);
-    } else if (workRemoveXO) {
-      workRemoveXO = false
-      newTiles[index][0] = null;
-      newTiles[index].splice(1, 1);
-    } else if (tiles[index][1] === 'Skip') {
-      newTiles[index].splice(1, 1);
-    } else if (tiles[index][1] === PLAYER_Switch) {
-      workSwitchXO = true
-      workMessage = playerTurn + ', Pick a square and switch the choice';
-      newTiles[index].splice(1, 1);
-    } else if (tiles[index][1] === PLAYER_Remove) {
-      workRemoveXO = true
-      workMessage = playerTurn + ', Pick a square and remove the contents';
-      newTiles[index].splice(1, 1);
-    } else if (tiles[index][1] === 'Blocked') {
-      newTiles[index][0] = PLAYER_Blocked;
-      newTiles[index].splice(1, 1);
-    } else if (tiles[index][1] === 'Wild') {
-      newTiles[index][0] = PLAYER_Wild;
-      newTiles[index].splice(1, 1);
-    } else if (tiles[index][1] === 'Play') {
-      newTiles[index][0] = playerTurn;
-      newTiles[index].splice(1, 1);
+    // Process standard click on a square
+    if (!removeXO && !switchXO) {
+      // exit if square already has been played in
+      if (tiles[index][0] !== null) {
+        workMessage = 'Cannot play if a value alreay exists in square'
+        setMessage(workMessage)
+        return
+      };
+      // If spot clicked on doesnt have an action move, get one
+      if (tiles[index][1] === null || tiles[index][1] === undefined) {
+        newTiles[index][1] = getPlayerMove()
+        console.log('obtained another move: ' + newTiles[index][1])
+      }
+      // If player move is 'remove' or 'switch', ensure there is a valid move...
+      //    if not assure PLAY is current move
+      if (newTiles[index][1] === PLAYER_Remove || tiles[index][1] === PLAYER_Switch) {
+        let notCurrrentPlayer = '';
+        playerTurn === PLAYER_X ? notCurrrentPlayer = PLAYER_O : notCurrrentPlayer = PLAYER_X;
+        if (tiles.every(tile => tile[0] !== notCurrrentPlayer)) {
+          newTiles[index].splice(1, 1);
+          newTiles[index][1] = PLAYER_Play;
+        }
+      }
+      if (tiles[index][1] === PLAYER_Skip) {
+        newTiles[index].splice(1, 1);
+      } else if (tiles[index][1] === PLAYER_Switch) {
+        setSwitchXO(true)
+        workMessage = playerTurn + ', Pick a square and switch the choice';
+        newTiles[index].splice(1, 1);
+      } else if (tiles[index][1] === PLAYER_Remove) {
+        setRemoveXO(true)
+        workMessage = playerTurn + ', Pick a square and remove the contents';
+        newTiles[index].splice(1, 1);
+      } else if (tiles[index][1] === 'Blocked') {
+        newTiles[index][0] = PLAYER_Blocked;
+        newTiles[index].splice(1, 1);
+      } else if (tiles[index][1] === 'Wild') {
+        newTiles[index][0] = PLAYER_Wild;
+        newTiles[index].splice(1, 1);
+      } else if (tiles[index][1] === 'Play') {
+        newTiles[index][0] = playerTurn;
+        newTiles[index].splice(1, 1);
+      }
+      setPlayerTurn(workPlayerTurn);
     }
 
+    // Process click on a square after you have found a switch or remove
+    if (removeXO || switchXO) {
+      // exit if what already exists in square is not an X or O
+      if (tiles[index][0] !== PLAYER_X && tiles[index][0] !== PLAYER_O) {
+        workMessage = 'Can only remove an X or O'
+        setMessage(workMessage)
+        return
+      };
+      if (switchXO) {
+        setSwitchXO(false)
+        newTiles[index][0] = playerTurn;
+        newTiles[index].splice(1, 1);
+      } else if (removeXO) {
+        setRemoveXO(false)
+        newTiles[index][0] = null;
+        newTiles[index].splice(1, 1);
+      }
+    }
     setTiles(newTiles);
-    if (!workSwitchXO && !workRemoveXO) {
-        setPlayerTurn(workPlayerTurn);
-     }
-     setSwitchXO(workSwitchXO) 
-     setRemoveXO(workRemoveXO) 
-     setMessage(workMessage)
+    setMessage(workMessage)
   };
 
   const handleReset = () => {
