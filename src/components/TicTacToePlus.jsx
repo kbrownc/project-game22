@@ -75,21 +75,17 @@ function checkWinner(tiles, setStrikeClass, setGameState) {
       } else if (tileValue1 === PLAYER_O || tileValue2 === PLAYER_O || tileValue3 === PLAYER_O) {
         setGameState(gameStateMeaning.playerOWins);
       }
+    } else {
+      const areAllTilesFilledIn = tiles.every(tile => tile[0] !== null);
+      if (areAllTilesFilledIn) {
+        setGameState(gameStateMeaning.draw);
+      }
     }
-    
-  }
-  const areAllTilesFilledIn = tiles.every(tile => tile[0] !== null);
-  if (areAllTilesFilledIn) {
-    setGameState(gameStateMeaning.draw);
   }
 }
 
 function TicTacToePlus() {
-  let initialTiles = [[null],[null],[null],[null],[null],[null],[null],[null],[null]]
-  for (let i = 0; i < 9; i++) {
-    initialTiles[i][1] = getPlayerMove()
-  }
-  const [tiles, setTiles] = useState(initialTiles);
+  const [tiles, setTiles] = useState([[null],[null],[null],[null],[null],[null],[null],[null],[null]]);
   const [message, setMessage] = useState('');
   const [switchXO, setSwitchXO] = useState(false);
   const [removeXO, setRemoveXO] = useState(false);
@@ -98,6 +94,7 @@ function TicTacToePlus() {
   const [gameState, setGameState] = useState(gameStateMeaning.inProgress);
 
   const handleTileClick = index => {
+    console.log(tiles)
     // If game is not in progress, exit
     if (gameState !== gameStateMeaning.inProgress) return;
     const newTiles = [...tiles];
@@ -176,6 +173,10 @@ function TicTacToePlus() {
 
   const handleReset = () => {
     setGameState(gameStateMeaning.inProgress);
+    let initialTiles = [[null],[null],[null],[null],[null],[null],[null],[null],[null]]
+    for (let i = 0; i < 9; i++) {
+      initialTiles[i][1] = getPlayerMove()
+    }
     setTiles(initialTiles);
     setPlayerTurn(PLAYER_X);
     setStrikeClass();
@@ -187,6 +188,14 @@ function TicTacToePlus() {
   useEffect(() => {
     checkWinner(tiles, setStrikeClass, setGameState);
   }, [tiles]);
+
+  useEffect(() => {
+    let initialTiles = [[null],[null],[null],[null],[null],[null],[null],[null],[null]]
+    for (let i = 0; i < 9; i++) {
+      initialTiles[i][1] = getPlayerMove()
+    }
+    setTiles(initialTiles);
+  }, []);
 
   return (
     <div>
