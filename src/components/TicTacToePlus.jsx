@@ -13,6 +13,7 @@ const PLAYER_Remove = 'Remove';
 const PLAYER_Switch = 'Switch';
 const PLAYER_Play = 'Play';
 const PLAYER_Skip = 'Skip';
+
 //debugger; // eslint-disable-line
 
 const winningCombinations = [
@@ -27,23 +28,23 @@ const winningCombinations = [
 ];
 
 const getPlayerMove = () => {
-    let playerMove = '';
-    let randomNum = getRandomNumber(1, 15);
-    if (randomNum < 10) {
-      playerMove = PLAYER_Play
-    } else if (randomNum === 10) {
-      playerMove = PLAYER_Wild
-    } else if (randomNum === 11) {
-      playerMove = PLAYER_Blocked
-    } else if (randomNum === 12) {
-      playerMove = PLAYER_Switch
-    } else if (randomNum === 13) {
-      playerMove = PLAYER_Skip
-    } else if (randomNum > 13) {
-      playerMove = PLAYER_Remove
-    }
-    return playerMove;
-  };
+  let playerMove = '';
+  let randomNum = getRandomNumber(1, 15);
+  if (randomNum < 10) {
+    playerMove = PLAYER_Play;
+  } else if (randomNum === 10) {
+    playerMove = PLAYER_Wild;
+  } else if (randomNum === 11) {
+    playerMove = PLAYER_Blocked;
+  } else if (randomNum === 12) {
+    playerMove = PLAYER_Switch;
+  } else if (randomNum === 13) {
+    playerMove = PLAYER_Skip;
+  } else if (randomNum > 13) {
+    playerMove = PLAYER_Remove;
+  }
+  return playerMove;
+};
 
 function checkWinner(tiles, setStrikeClass, setGameState) {
   for (const { combo, strikeClass } of winningCombinations) {
@@ -56,7 +57,7 @@ function checkWinner(tiles, setStrikeClass, setGameState) {
     if (tileValue2 !== PLAYER_Wild) tempSolution.push(tileValue2);
     if (tileValue3 !== PLAYER_Wild) tempSolution.push(tileValue3);
     let haveWinner = false;
-    
+
     if (tempSolution.includes(PLAYER_Blocked)) continue;
     if (tempSolution.includes(null)) continue;
     if (tempSolution.length === 0) continue;
@@ -66,7 +67,7 @@ function checkWinner(tiles, setStrikeClass, setGameState) {
       haveWinner = true;
     } else if (tempSolution[0] === tempSolution[1] && tempSolution[0] === tempSolution[2]) {
       haveWinner = true;
-    }
+    };
 
     if (haveWinner) {
       setStrikeClass(strikeClass);
@@ -75,6 +76,7 @@ function checkWinner(tiles, setStrikeClass, setGameState) {
       } else if (tileValue1 === PLAYER_O || tileValue2 === PLAYER_O || tileValue3 === PLAYER_O) {
         setGameState(gameStateMeaning.playerOWins);
       }
+      return;
     } else {
       const areAllTilesFilledIn = tiles.every(tile => tile[0] !== null);
       if (areAllTilesFilledIn) {
@@ -85,42 +87,45 @@ function checkWinner(tiles, setStrikeClass, setGameState) {
 }
 
 function TicTacToePlus() {
-  const [tiles, setTiles] = useState([[null],[null],[null],[null],[null],[null],[null],[null],[null]]);
-  const [message, setMessage] = useState('');
+  const [tiles, setTiles] = useState([[null],[null],[null],[null],[null],[null],[null],[null],[null],]);
+  const [message, setMessage] = useState('X' + ', your turn to play');
   const [switchXO, setSwitchXO] = useState(false);
   const [removeXO, setRemoveXO] = useState(false);
   const [playerTurn, setPlayerTurn] = useState(PLAYER_X);
   const [strikeClass, setStrikeClass] = useState();
   const [gameState, setGameState] = useState(gameStateMeaning.inProgress);
 
+  let workPlayerTurn = playerTurn;
+  playerTurn === 'X' ? (workPlayerTurn = PLAYER_O) : (workPlayerTurn = PLAYER_X);
+
   const handleTileClick = index => {
-    console.log(tiles)
+    console.log(tiles);
     // If game is not in progress, exit
     if (gameState !== gameStateMeaning.inProgress) return;
     const newTiles = [...tiles];
-    let workMessage = ''
-    let workPlayerTurn = playerTurn;
-    playerTurn === 'X' ? workPlayerTurn = PLAYER_O : workPlayerTurn =  PLAYER_X;
-    workMessage = workPlayerTurn + ', your turn to play'
+    let workMessage = '';
+    // let workPlayerTurn = playerTurn;
+    // playerTurn === 'X' ? (workPlayerTurn = PLAYER_O) : (workPlayerTurn = PLAYER_X);
+    workMessage = workPlayerTurn + ', your turn to play';
 
-    // Process standard click on a square
+    // Standard click on a square
     if (!removeXO && !switchXO) {
       // exit if square already has been played in
       if (tiles[index][0] !== null) {
-        workMessage = 'Cannot play if a value alreay exists in square'
-        setMessage(workMessage)
-        return
-      };
+        workMessage = 'Cannot play if a value alreay exists in square';
+        setMessage(workMessage);
+        return;
+      }
       // If spot clicked on doesnt have an action move, get one
       if (tiles[index][1] === null || tiles[index][1] === undefined) {
-        newTiles[index][1] = getPlayerMove()
-        console.log('obtained another move: ' + newTiles[index][1])
+        newTiles[index][1] = getPlayerMove();
+        console.log('obtained another move: ' + newTiles[index][1]);
       }
       // If player move is 'remove' or 'switch', ensure there is a valid move...
       //    if not assure PLAY is current move
       if (newTiles[index][1] === PLAYER_Remove || tiles[index][1] === PLAYER_Switch) {
         let notCurrrentPlayer = '';
-        playerTurn === PLAYER_X ? notCurrrentPlayer = PLAYER_O : notCurrrentPlayer = PLAYER_X;
+        playerTurn === PLAYER_X ? (notCurrrentPlayer = PLAYER_O) : (notCurrrentPlayer = PLAYER_X);
         if (tiles.every(tile => tile[0] !== notCurrrentPlayer)) {
           newTiles[index].splice(1, 1);
           newTiles[index][1] = PLAYER_Play;
@@ -129,11 +134,11 @@ function TicTacToePlus() {
       if (tiles[index][1] === PLAYER_Skip) {
         newTiles[index].splice(1, 1);
       } else if (tiles[index][1] === PLAYER_Switch) {
-        setSwitchXO(true)
+        setSwitchXO(true);
         workMessage = playerTurn + ', Pick a square and switch the choice';
         newTiles[index].splice(1, 1);
       } else if (tiles[index][1] === PLAYER_Remove) {
-        setRemoveXO(true)
+        setRemoveXO(true);
         workMessage = playerTurn + ', Pick a square and remove the contents';
         newTiles[index].splice(1, 1);
       } else if (tiles[index][1] === 'Blocked') {
@@ -146,36 +151,40 @@ function TicTacToePlus() {
         newTiles[index][0] = playerTurn;
         newTiles[index].splice(1, 1);
       }
-      setPlayerTurn(workPlayerTurn);
+      if (tiles[index][1] !== PLAYER_Remove && tiles[index][1] !== PLAYER_Switch) {
+        setPlayerTurn(workPlayerTurn);
+        console.log('workPlayerTurn',workPlayerTurn)
+      }
     }
 
     // Process click on a square after you have found a switch or remove
     if (removeXO || switchXO) {
       // exit if what already exists in square is not an X or O
       if (tiles[index][0] !== PLAYER_X && tiles[index][0] !== PLAYER_O) {
-        workMessage = 'Can only remove an X or O'
-        setMessage(workMessage)
-        return
-      };
+        workMessage = 'Can only remove an X or O';
+        setMessage(workMessage);
+        return;
+      }
       if (switchXO) {
-        setSwitchXO(false)
+        setSwitchXO(false);
         newTiles[index][0] = playerTurn;
         newTiles[index].splice(1, 1);
       } else if (removeXO) {
-        setRemoveXO(false)
+        setRemoveXO(false);
         newTiles[index][0] = null;
         newTiles[index].splice(1, 1);
       }
+      setPlayerTurn(workPlayerTurn);
     }
     setTiles(newTiles);
-    setMessage(workMessage)
+    setMessage(workMessage);
   };
 
   const handleReset = () => {
     setGameState(gameStateMeaning.inProgress);
-    let initialTiles = [[null],[null],[null],[null],[null],[null],[null],[null],[null]]
+    let initialTiles = [[null], [null], [null], [null], [null], [null], [null], [null], [null]];
     for (let i = 0; i < 9; i++) {
-      initialTiles[i][1] = getPlayerMove()
+      initialTiles[i][1] = getPlayerMove();
     }
     setTiles(initialTiles);
     setPlayerTurn(PLAYER_X);
@@ -190,10 +199,22 @@ function TicTacToePlus() {
   }, [tiles]);
 
   useEffect(() => {
-    let initialTiles = [[null],[null],[null],[null],[null],[null],[null],[null],[null]]
-    for (let i = 0; i < 9; i++) {
-      initialTiles[i][1] = getPlayerMove()
-    }
+    // let initialTiles = [[null], [null], [null], [null], [null], [null], [null], [null], [null]];
+    // for (let i = 0; i < 9; i++) {
+    //   initialTiles[i][1] = getPlayerMove();
+    // }
+    let initialTiles = 
+      [[null,"Play"], 
+      [null,"Remove"], 
+      [null,"Play"], 
+      [null,"Play"], 
+      [null,"Play"], 
+      [null,"Play"], 
+      [null,"Play"], 
+      [null,"Play"], 
+      [null,"Play"]];
+
+
     setTiles(initialTiles);
   }, []);
 
