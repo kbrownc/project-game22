@@ -67,7 +67,7 @@ function checkWinner(tiles, setStrikeClass, setGameState) {
       haveWinner = true;
     } else if (tempSolution[0] === tempSolution[1] && tempSolution[0] === tempSolution[2]) {
       haveWinner = true;
-    };
+    }
 
     if (haveWinner) {
       setStrikeClass(strikeClass);
@@ -95,21 +95,19 @@ function TicTacToePlus() {
   const [strikeClass, setStrikeClass] = useState();
   const [gameState, setGameState] = useState(gameStateMeaning.inProgress);
 
-  let workPlayerTurn = playerTurn;
-  playerTurn === 'X' ? (workPlayerTurn = PLAYER_O) : (workPlayerTurn = PLAYER_X);
-
   const handleTileClick = index => {
-    console.log(tiles);
     // If game is not in progress, exit
     if (gameState !== gameStateMeaning.inProgress) return;
     const newTiles = [...tiles];
     let workMessage = '';
-    // let workPlayerTurn = playerTurn;
-    // playerTurn === 'X' ? (workPlayerTurn = PLAYER_O) : (workPlayerTurn = PLAYER_X);
+    let workPlayerTurn = playerTurn;
+    //playerTurn === 'X' ? (workPlayerTurn = PLAYER_O) : (workPlayerTurn = PLAYER_X);
+    console.log(workPlayerTurn)
     workMessage = workPlayerTurn + ', your turn to play';
 
     // Standard click on a square
     if (!removeXO && !switchXO) {
+      playerTurn === 'X' ? (workPlayerTurn = PLAYER_O) : (workPlayerTurn = PLAYER_X);
       // exit if square already has been played in
       if (tiles[index][0] !== null) {
         workMessage = 'Cannot play if a value alreay exists in square';
@@ -119,7 +117,6 @@ function TicTacToePlus() {
       // If spot clicked on doesnt have an action move, get one
       if (tiles[index][1] === null || tiles[index][1] === undefined) {
         newTiles[index][1] = getPlayerMove();
-        console.log('obtained another move: ' + newTiles[index][1]);
       }
       // If player move is 'remove' or 'switch', ensure there is a valid move...
       //    if not assure PLAY is current move
@@ -139,6 +136,7 @@ function TicTacToePlus() {
         newTiles[index].splice(1, 1);
       } else if (tiles[index][1] === PLAYER_Remove) {
         setRemoveXO(true);
+        newTiles[index][0] = playerTurn;
         workMessage = playerTurn + ', Pick a square and remove the contents';
         newTiles[index].splice(1, 1);
       } else if (tiles[index][1] === 'Blocked') {
@@ -153,7 +151,6 @@ function TicTacToePlus() {
       }
       if (tiles[index][1] !== PLAYER_Remove && tiles[index][1] !== PLAYER_Switch) {
         setPlayerTurn(workPlayerTurn);
-        console.log('workPlayerTurn',workPlayerTurn)
       }
     }
 
@@ -174,6 +171,7 @@ function TicTacToePlus() {
         newTiles[index][0] = null;
         newTiles[index].splice(1, 1);
       }
+      console.log('SWITCH-REMOVE logic workPlayerTurn', workPlayerTurn);
       setPlayerTurn(workPlayerTurn);
     }
     setTiles(newTiles);
@@ -203,17 +201,17 @@ function TicTacToePlus() {
     // for (let i = 0; i < 9; i++) {
     //   initialTiles[i][1] = getPlayerMove();
     // }
-    let initialTiles = 
-      [[null,"Play"], 
-      [null,"Remove"], 
-      [null,"Play"], 
-      [null,"Play"], 
-      [null,"Play"], 
-      [null,"Play"], 
-      [null,"Play"], 
-      [null,"Play"], 
-      [null,"Play"]];
-
+    let initialTiles = [
+      [null, 'Play'],
+      [null, 'Remove'],
+      [null, 'Play'],
+      [null, 'Play'],
+      [null, 'Play'],
+      [null, 'Play'],
+      [null, 'Play'],
+      [null, 'Play'],
+      [null, 'Switch'],
+    ];
 
     setTiles(initialTiles);
   }, []);
