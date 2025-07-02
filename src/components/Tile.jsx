@@ -10,3 +10,4 @@ function Tile({playerTurn, className, value, onClick}) {
 }
 
 export default Tile;
+     
