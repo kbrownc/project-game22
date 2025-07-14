@@ -106,32 +106,32 @@ function TicTacToePlus() {
   const [gameState, setGameState] = useState(gameStateMeaning.inProgress);
 
   const handleTileClick = index => {
+    let newTiles = [...tiles];
+    let workPlayerTurn = playerTurn;
     // If game is not in progress, exit
     if (gameState !== gameStateMeaning.inProgress) return;
-    const newTiles = [...tiles];
-    let workMessage = '';
-    let workPlayerTurn = playerTurn;
-    workMessage = workPlayerTurn + ', your turn to play';
-
-    // Standard click on a square
+    // Process Standard click on a square
     if (!removeXO && !switchXO) {
-      handleStandardClick(workPlayerTurn, index, workMessage, newTiles)
-    }
-    // Process click on a square after you have found a switch or remove
-    if (removeXO || switchXO) {
-      handleSwitchRemoveClick(workPlayerTurn, index, workMessage, newTiles)
+      let workMessage = '';
+      playerTurn === 'X' ? (workPlayerTurn = PLAYER_O) : (workPlayerTurn = PLAYER_X);
+      [newTiles, workMessage] = handleStandardClick(workPlayerTurn, index, newTiles)
+      if (workMessage === '') {
+        workMessage = workPlayerTurn + ', your turn to play';
+      }
+      setMessage(workMessage);
+    // Process click on a square for switch or remove
+    } else {
+      newTiles = handleSwitchRemoveClick(index, newTiles)
     }
     setTiles(newTiles);
-    setMessage(workMessage);
   };
 
-  const handleStandardClick = (workPlayerTurn, index, workMessage, newTiles) => {
-    playerTurn === 'X' ? (workPlayerTurn = PLAYER_O) : (workPlayerTurn = PLAYER_X);
+  const handleStandardClick = (workPlayerTurn, index, newTiles) => {
     // exit if square already has been played in
+    let workMessage = ''
     if (tiles[index][0] !== null) {
       workMessage = 'Cannot play if a value alreay exists in square';
-      setMessage(workMessage);
-      return;
+      return [newTiles, workMessage];
     }
     // If spot clicked on doesnt have an action move, get one
     if (tiles[index][1] === null || tiles[index][1] === undefined) {
@@ -172,14 +172,14 @@ function TicTacToePlus() {
     if (tiles[index][1] !== PLAYER_Remove && tiles[index][1] !== PLAYER_Switch) {
       setPlayerTurn(workPlayerTurn);
     }
+    return [newTiles, workMessage]
   };
 
-  const handleSwitchRemoveClick = (workPlayerTurn, index, workMessage, newTiles) => {
+  const handleSwitchRemoveClick = (index, newTiles) => {
     // exit if what already exists in square is not an X or O
       if (tiles[index][0] !== PLAYER_X && tiles[index][0] !== PLAYER_O) {
-        workMessage = 'Can only remove an X or O';
-        setMessage(workMessage);
-        return;
+        setMessage('Can only remove an X or O');
+        return newTiles;
       }
       if (switchXO) {
         setSwitchXO(false);
@@ -190,7 +190,8 @@ function TicTacToePlus() {
         newTiles[index][0] = null;
         newTiles[index].splice(1, 1);
       }
-      setPlayerTurn(workPlayerTurn);
+      setMessage(playerTurn + ', your turn to play')
+      return newTiles
   };
 
   const handleReset = () => {
