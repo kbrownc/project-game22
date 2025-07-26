@@ -213,21 +213,21 @@ function TicTacToePlus() {
   }, [tiles]);
 
   useEffect(() => {
-    // let initialTiles = [[null], [null], [null], [null], [null], [null], [null], [null], [null]];
-    // for (let i = 0; i < 9; i++) {
-    //   initialTiles[i][1] = getPlayerMove();
-    // }
-    let initialTiles = [
-      [null, 'Wild'],
-      [null, 'Play'],
-      [null, 'Remove'],
-      [null, 'Blocked'],
-      [null, 'Play'],
-      [null, 'Play'],
-      [null, 'Skip'],
-      [null, 'Play'],
-      [null, 'Switch'],
-    ];
+    let initialTiles = [[null], [null], [null], [null], [null], [null], [null], [null], [null]];
+    for (let i = 0; i < 9; i++) {
+      initialTiles[i][1] = getPlayerMove();
+    }
+    // let initialTiles = [
+    //   [null, 'Wild'],
+    //   [null, 'Play'],
+    //   [null, 'Remove'],
+    //   [null, 'Blocked'],
+    //   [null, 'Play'],
+    //   [null, 'Play'],
+    //   [null, 'Skip'],
+    //   [null, 'Play'],
+    //   [null, 'Switch'],
+    // ];
 
     setTiles(initialTiles);
   }, []);
