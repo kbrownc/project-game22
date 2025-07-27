@@ -175,13 +175,12 @@ function TicTacToePlus() {
   const handleSwitchRemoveClick = (index, newTiles) => {
     // exit if what already exists in square is not an X or O
       if (tiles[index][0] !== PLAYER_X && tiles[index][0] !== PLAYER_O) {
-        setMessage('Can only remove an X or O');
+        setMessage('Can only remove an X or O.... try again');
         return newTiles;
       }
       if (switchXO) {
         setSwitchXO(false);
         newTiles[index][0] = playerTurn;
-        //newTiles[index].splice(1, 1);
       } else if (removeXO) {
         setRemoveXO(false);
         newTiles[index][0] = null;
