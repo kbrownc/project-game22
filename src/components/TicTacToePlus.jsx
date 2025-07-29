@@ -135,9 +135,7 @@ function TicTacToePlus() {
     // If player move is 'remove' or 'switch', ensure there is a valid move...
     //    if not assure PLAY is current move
     if (newTiles[index][1] === PLAYER_Remove || tiles[index][1] === PLAYER_Switch) {
-      let notCurrrentPlayer = '';
-      playerTurn === PLAYER_X ? (notCurrrentPlayer = PLAYER_O) : (notCurrrentPlayer = PLAYER_X);
-      if (tiles.every(tile => tile[0] !== notCurrrentPlayer)) {
+      if (tiles.every(tile => tile[0] !== workPlayerTurn)) {
         newTiles[index][1] = PLAYER_Play;
         setPlayerTurn(workPlayerTurn);
       }
